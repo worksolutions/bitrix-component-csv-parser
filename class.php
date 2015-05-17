@@ -59,7 +59,6 @@ class Component extends CBitrixComponent {
 
         if (!$fileId = CFile::SaveFile($file, 'csv-parser')) {
             throw new Exception('Can not save file');
-
         }
 
         return new Response('upload', array(
@@ -72,19 +71,17 @@ class Component extends CBitrixComponent {
      * @return Response
      */
     public function parseAction(HttpRequest $request) {
-        $step = $request->getPost('STEP') ?: 0;
-        $step += 1;
+        $iteration = $request->getPost('ITERATION') ?: 0;
+        $iteration += 1;
 
         $fileId = $request->getPost('FILE_ID');
         $file = CFile::GetFileArray($fileId);
 
         $parser = new CsvParser($_SERVER['DOCUMENT_ROOT'] . $file['SRC']);
-
-        // указать колличество строк, обрабатываемых за итерацию
-        $parser->setMaxStepCount(2);
+        $parser->setStepsByIteration(100);
 
         while ($data = $parser->parse()) {
-            // Код для обработки строки данных из csv
+            // process data
         }
 
         if ($parser->endOfParse()) {
@@ -94,7 +91,7 @@ class Component extends CBitrixComponent {
         }
 
         return new Response('parse', array(
-            'STEP' => $step,
+            'ITERATION' => $iteration,
             'FILE_ID' => $fileId
         ));
     }

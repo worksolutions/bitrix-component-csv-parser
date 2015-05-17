@@ -1,5 +1,5 @@
 <?php
-$step = $arResult['STEP'];
+$iteration = $arResult['ITERATION'];
 
 CAdminMessage::ShowMessage(array(
     "MESSAGE" => "Обработка файла",
@@ -9,7 +9,7 @@ CAdminMessage::ShowMessage(array(
 ?>
     <input type="hidden" name="ACTION" value="PARSE"/>
     <input type="hidden" name="FILE_ID" value="<?= $arResult['FILE_ID']?>"/>
-    <input type="hidden" name="STEP" value="<?= $step?>"/>
+    <input type="hidden" name="ITERATION" value="<?= $iteration?>"/>
 
     <script>
         setTimeout(function () {

@@ -9,9 +9,9 @@ use SplFileObject;
 
 class CsvParser {
 
-    private $maxStepCount = 100;
+    private $stepsByIteration = 100;
     private $stepCount = 0;
-    private $endOfSteps;
+    private $endOfIteration;
     private $file;
     private $endOfParse;
     private $headers;
@@ -45,8 +45,8 @@ class CsvParser {
      * @param $count
      * @return $this
      */
-    public function setMaxStepCount($count) {
-        $this->maxStepCount = $count;
+    public function setStepsByIteration($count) {
+        $this->stepsByIteration = $count;
 
         return $this;
     }
@@ -57,8 +57,8 @@ class CsvParser {
     public function parse() {
         $this->stepCount += 1;
 
-        if ($this->maxStepCount && $this->stepCount > $this->maxStepCount) {
-            $this->fireEndOfSteps();
+        if ($this->stepsByIteration && $this->stepCount > $this->stepsByIteration) {
+            $this->fireEndOfIteration();
             return false;
         }
 
@@ -69,9 +69,9 @@ class CsvParser {
 
         $columns = $this->file->fgetcsv($this->delimiter, $this->enclosure, $this->escape);
 
+        // is empty string – follow to next string
         if ($columns[0] === null) {
-            $this->fireEndOfParse();
-            return false;
+            return $this->parse();
         }
 
         $data = array();
@@ -82,13 +82,17 @@ class CsvParser {
         return $data;
     }
 
-    private function fireEndOfSteps() {
-        if ($this->endOfSteps) {
+    private function fireEndOfIteration() {
+        if ($this->endOfIteration) {
             return;
         }
 
-        $this->endOfSteps = true;
+        $this->endOfIteration = true;
 
+        $this->truncateFile();
+    }
+
+    private function truncateFile() {
         $temp = tmpfile();
         $file = $this->file;
 
@@ -115,6 +119,10 @@ class CsvParser {
     }
 
     private function fireEndOfParse() {
+        if ($this->endOfParse) {
+            return;
+        }
+
         $this->endOfParse = true;
     }
 }
